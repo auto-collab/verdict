@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Verdict",
+  "version": "1.0",
+  "description": "Detects rating systems on product pages",
+  "permissions": ["activeTab", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["<all_urls>"]
+}
