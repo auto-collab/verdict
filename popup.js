@@ -76,4 +76,4 @@ function detectRatingSystem() {
   return { found: false };
 }
 
-// commit
+// fuck kyue
