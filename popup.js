@@ -75,5 +75,3 @@ function detectRatingSystem() {
   }
   return { found: false };
 }
-
-// fuck kyue
