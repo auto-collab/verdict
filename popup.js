@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           const result = results[0].result;
           if (result.found) {
-            statusDiv.textContent = `Product rating system detected. XPath: ${result.xpath}`;
+            statusDiv.textContent = `Product rating system detected. Element Location: $('${result.selector}')`;
           } else {
             statusDiv.textContent = "No product rating system detected.";
           }
@@ -36,41 +36,10 @@ function detectRatingSystem() {
     '[aria-label*="stars"][aria-label*="review"]',
   ];
 
-  function getElementXPath(element) {
-    if (element && element.id) {
-      return `//*[@id="${element.id}"]`;
-    }
-    const paths = [];
-    for (
-      ;
-      element && element.nodeType === Node.ELEMENT_NODE;
-      element = element.parentNode
-    ) {
-      let index = 0;
-      let sibling;
-      for (
-        sibling = element.previousSibling;
-        sibling;
-        sibling = sibling.previousSibling
-      ) {
-        if (sibling.nodeType === Node.DOCUMENT_TYPE_NODE) {
-          continue;
-        }
-        if (sibling.nodeName === element.nodeName) {
-          ++index;
-        }
-      }
-      const tagName = element.nodeName.toLowerCase();
-      const pathIndex = index ? `[${index + 1}]` : "";
-      paths.splice(0, 0, `${tagName}${pathIndex}`);
-    }
-    return paths.length ? `/${paths.join("/")}` : null;
-  }
-
   for (const selector of possibleRatingSelectors) {
     const element = document.querySelector(selector);
     if (element) {
-      return { found: true, xpath: getElementXPath(element) };
+      return { found: true, selector: selector };
     }
   }
   return { found: false };
