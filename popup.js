@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusDiv = document.getElementById("status");
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!checkIfUrlIsGoodreads(tabs[0])) {
+      statusDiv.textContent = "This extension only works on Goodreads.";
+      return;
+    }
+
     chrome.scripting.executeScript(
       {
         target: { tabId: tabs[0].id },
@@ -44,3 +49,8 @@ function detectRatingSystem() {
   }
   return { found: false };
 }
+
+const checkIfUrlIsGoodreads = (tab) => {
+  const url = new URL(tab.url);
+  return url.hostname == "www.goodreads.com";
+};
