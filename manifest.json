@@ -4,6 +4,12 @@
   "version": "1.0",
   "description": "Detects rating systems on product pages",
   "permissions": ["activeTab", "scripting"],
+  "icons": {
+   "16": "gavel_circular.png",
+   "32": "gavel_circular.png",
+   "48": "gavel_circular.png",
+   "128": "gavel_circular.png"
+ },
   "background": {
     "service_worker": "background.js"
   },
