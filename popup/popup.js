@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
           } else {
             const result = results[0].result;
             if (result && result.found) {
-              statusDiv.textContent = `Product rating system detected.`;
-
+              statusDiv.textContent = "Book reviews:";
+              // Code that creates the html elements of each review to show in popup
               const reviewList = document.createElement("ul");
               result.reviews.forEach((rev) => {
                 const listItem = document.createElement("li");
