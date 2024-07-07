@@ -3,7 +3,7 @@
   "name": "Verdict",
   "version": "1.0",
   "description": "Detects rating systems on product pages",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "tabs"],
   "icons": {
     "16": "assets/gavel_circular.png",
     "32": "assets/gavel_circular.png",
@@ -16,5 +16,14 @@
   "action": {
     "default_popup": "popup/popup.html"
   },
-  "host_permissions": ["https://www.goodreads.com/*"]
+  "host_permissions": [
+    "https://www.goodreads.com/*",
+    "https://api.openai.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.goodreads.com/*"],
+      "js": ["content.js"]
+    }
+  ]
 }
