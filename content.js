@@ -1,7 +1,6 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("content.js received message:", request);
-  if (request.action === "detectAndExtractReviews") {
-    console.log("Detecting rating system...");
+  if (request.action === "getReviews") {
     class ReviewExtractor {
       static extractReviews() {
         const reviewElements = document.querySelectorAll(
@@ -41,10 +40,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     const ratingResult = detectRatingSystem();
     if (ratingResult.found) {
-      console.log("Rating system detected:", ratingResult);
       try {
         const reviews = ReviewExtractor.extractReviews();
-        console.log("Extracted reviews:", reviews);
         chrome.runtime.sendMessage({ action: "sendReviews", reviews });
       } catch (error) {
         console.error("Error extracting reviews:", error);
