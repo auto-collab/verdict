@@ -10,22 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    statusDiv.textContent = "Checking for rating system...";
+    statusDiv.textContent = "Getting summary...";
 
     // Send message directly to the content script
     console.log(
       "Sending message to content script to detect and extract reviews..."
     );
     chrome.tabs.sendMessage(currentTab.id, {
-      action: "detectAndExtractReviews",
+      action: "getReviews",
     });
 
-    // Listen for messages from the background script or content script
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.log("popup.js received message:", request);
       if (request.action === "reviewsSummary") {
         if (request.summary) {
-          statusDiv.textContent = "Summary:";
+          statusDiv.textContent = "";
           const summaryDiv = document.createElement("div");
           summaryDiv.textContent = request.summary;
           statusDiv.appendChild(summaryDiv);
