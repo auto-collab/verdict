@@ -19,29 +19,6 @@ function truncateReviews(reviews, maxTokens) {
   return truncatedText;
 }
 
-// Code to count tokens for eval
-
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.action === "sendReviews") {
-//     console.log("background.js received message:", request);
-//     const reviews = request.reviews;
-
-//     let allTokenCount = 0;
-
-//     for (const review of reviews) {
-//       const reviewTokens = encode(review);
-//       allTokenCount += reviewTokens;
-//       console.log(reviewTokens);
-//       console.log(review);
-//     }
-
-//     chrome.runtime.sendMessage({
-//       action: "reviewsSummary",
-//       summary: `Token count ${allTokenCount}`,
-//     });
-//   }
-// });
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("background.js received message:", request);
   if (request.action === "sendReviews") {
@@ -68,11 +45,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                   {
                     role: "system",
                     content:
-                      "You are a bibliophile who specializes in writing thorough, terse, and unbiased book reviews.",
+                      "You are a bibliophile who specializes in writing thorough, terse, and unbiased book reviews. You hand down your reviews of books as a verdict like a judge.",
                   },
                   {
                     role: "user",
-                    content: `Summarize all reviews in 5 sentences. Be unbiased, clear, and terse:\n\n${truncatedReviews}`,
+                    content: `Return to me a 5 sentence summary of the reviews you received. After giving me the summary, end the statement with a verdict of READ or DO NOT READ:\n\n${truncatedReviews}`,
                   },
                 ],
                 max_tokens: 1500,
