@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
           statusDiv.textContent = "Failed to summarize reviews.";
         }
       } else if (request.action === "noRatingSystemFound") {
-        statusDiv.textContent = "No product rating system detected.";
+        statusDiv.textContent = "No book rating system detected.";
       }
     });
   });
