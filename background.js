@@ -17,7 +17,6 @@ chrome.runtime.onMessage.addListener((request) => {
         });
       } else {
         const maxInputTokens = 2596;
-        console.log("All reviews:", reviews);
         const truncatedReviews = truncateReviews(reviews, maxInputTokens);
         console.log("Truncated reviews for API call:", truncatedReviews);
 
