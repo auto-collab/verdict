@@ -1,6 +1,7 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request) => {
   console.log("content.js received message:", request);
-  if (request.action === "getReviews") {
+  if (request.action === "getReviewsFromPage") {
+    // Class to handle the extraction of the user reviews
     class ReviewExtractor {
       static extractReviews() {
         const reviewElements = document.querySelectorAll(
@@ -16,6 +17,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     }
 
+    // Logic to handle the extraction of the user reviews
+    function extractBookIdFromUrl(url) {
+      // segments example: '/book/show/61350389-counter-identity'
+      const segments = new URL(url).pathname.split("/");
+
+      if (segments.length >= 4) {
+        return segments[3];
+      } else {
+        return null;
+      }
+    }
+
+    // Locators used to determine products reviews specifically
     function detectRatingSystem() {
       const possibleRatingSelectors = [
         '[class*="rating"][class*="star"]',
@@ -38,16 +52,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       return { found: false };
     }
 
+    // If a rating system is detected on product page, send to background.js
     const ratingResult = detectRatingSystem();
     if (ratingResult.found) {
       try {
         const reviews = ReviewExtractor.extractReviews();
-        chrome.runtime.sendMessage({ action: "sendReviews", reviews });
+        const bookId = extractBookIdFromUrl(request.url);
+        chrome.runtime.sendMessage({
+          action: "sendReviewsToOpenAI",
+          reviews,
+          bookId,
+        });
       } catch (error) {
         console.error("Error extracting reviews:", error);
       }
     } else {
-      console.log("No rating system found.");
       chrome.runtime.sendMessage({ action: "noRatingSystemFound" });
     }
   }

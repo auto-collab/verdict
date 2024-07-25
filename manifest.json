@@ -3,7 +3,7 @@
   "name": "Verdict",
   "version": "1.0",
   "description": "Detects rating systems on product pages",
-  "permissions": ["activeTab", "scripting", "tabs"],
+  "permissions": ["activeTab", "scripting", "tabs", "storage"],
   "icons": {
     "16": "assets/gavel_circular.png",
     "32": "assets/gavel_circular.png",

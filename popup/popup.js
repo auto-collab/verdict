@@ -12,19 +12,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     statusDiv.textContent = "Getting summary...";
 
-    // Send message directly to the content script
-    console.log(
-      "Sending message to content script to detect and extract reviews..."
-    );
+    // Sending message to content script to detect and extract reviews
     chrome.tabs.sendMessage(currentTab.id, {
-      action: "getReviews",
+      action: "getReviewsFromPage",
+      url: url,
     });
 
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // Sends messages to display to user in popup.html
+    chrome.runtime.onMessage.addListener((request) => {
       console.log("popup.js received message:", request);
       if (request.action === "reviewsSummary") {
         if (request.summary) {
-          statusDiv.textContent = "";
+          statusDiv.textContent = ""; // Put 'The Verdict Is...READ/DO NOT READ' here
           const summaryDiv = document.createElement("div");
           summaryDiv.textContent = request.summary;
           statusDiv.appendChild(summaryDiv);
