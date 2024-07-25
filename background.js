@@ -1,4 +1,4 @@
-const apiKey = "sk-None-*************************************";
+const apiKey = "sk-None-*****************";
 
 chrome.runtime.onMessage.addListener((request) => {
   console.log("background.js received message:", request);
