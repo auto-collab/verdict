@@ -1,6 +1,6 @@
-<div style="text-align: center;">
+<p align="center">
   <img src="assets\gavel_circular.png" alt="Verdict Chrome Extension" width="15%">
-</div>
+</p>
 
 # **Verdict**
 
