@@ -4,78 +4,93 @@ chrome.runtime.onMessage.addListener((request) => {
   console.log("background.js received message:", request);
 
   if (request.action === "sendReviewsToOpenAI") {
-    (async () => {
-      const reviews = request.reviews;
-      const bookId = request.bookId;
+    // (async () => {
+    //   const reviews = request.reviews;
+    //   const bookId = request.bookId;
 
-      // Check if the summary already exists
-      const existingSummary = await getSummary(bookId);
-      if (existingSummary) {
-        chrome.runtime.sendMessage({
-          action: "reviewsSummary",
-          summary: existingSummary.summary,
-        });
-      } else {
-        const maxInputTokens = 2596;
-        const truncatedReviews = truncateReviews(reviews, maxInputTokens);
-        console.log("Truncated reviews for API call:", truncatedReviews);
+    //   // Check if the summary already exists
+    //   const existingSummary = await getSummary(bookId);
+    //   if (existingSummary) {
+    //     chrome.runtime.sendMessage({
+    //       action: "displayVerdictAndSummary",
+    //       summary: existingSummary.summary,
+    //       verdict: existingSummary.verdict,
+    //     });
+    //   } else {
+    //     const maxInputTokens = 2596;
+    //     const truncatedReviews = truncateReviews(reviews, maxInputTokens);
+    //     console.log("Truncated reviews for API call:", truncatedReviews);
 
-        // Call to OpenAI API
-        try {
-          const response = await fetch(
-            "https://api.openai.com/v1/chat/completions",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey}`,
-              },
-              body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [
-                  {
-                    role: "system",
-                    content:
-                      "You are a bibliophile who specializes in writing thorough, terse, and unbiased book reviews. You hand down your reviews of books as a verdict like a judge.",
-                  },
-                  {
-                    role: "user",
-                    content: `Return to me a 5 sentence summary of the reviews you received. After giving me the summary, end the statement with a verdict of READ or DO NOT READ:\n\n${truncatedReviews}`,
-                  },
-                ],
-                max_tokens: 1500,
-              }),
-            }
-          );
+    //     // Call to OpenAI API
+    //     try {
+    //       const response = await fetch(
+    //         "https://api.openai.com/v1/chat/completions",
+    //         {
+    //           method: "POST",
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //             Authorization: `Bearer ${apiKey}`,
+    //           },
+    //           body: JSON.stringify({
+    //             model: "gpt-3.5-turbo",
 
-          // Handle API response
-          const data = await response.json();
-          console.log("API response:", data);
+    //             // TODO: move content messages to separate classs
+    //             messages: [
+    //               {
+    //                 role: "system",
+    //                 content:
+    //                   "You are a methodical researcher who reads every comment and then provides a verdict that represents the average opinion of the comments you have read.",
+    //               },
+    //               {
+    //                 role: "user",
+    //                 content: `Return a five sentence abstract on only the reviews using 10 words per each sentence based on the average opinion from the list of comments you have read.  Give a final verdict of READ or DO NOT READ. Format your response with the verdict coming first, a line of ### next, and then the short summary.:\n\n${truncatedReviews}`,
+    //               },
+    //             ],
+    //             max_tokens: 1500,
+    //           }),
+    //         }
+    //       );
 
-          if (data.choices && data.choices.length > 0) {
-            const verdict = data.choices[0].message.content.trim();
-            console.log(`Received summary from API for ${bookId}:`, verdict);
-            chrome.runtime.sendMessage({
-              action: "reviewsSummary",
-              summary: verdict,
-            });
-            storeSummary(bookId, verdict);
-          } else {
-            console.error("No valid choices in response:", data);
-            chrome.runtime.sendMessage({
-              action: "reviewsSummary",
-              summary: "No valid response received from the API.",
-            });
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          chrome.runtime.sendMessage({
-            action: "reviewsSummary",
-            summary: "An error occurred while summarizing the reviews.",
-          });
-        }
-      }
-    })();
+    //       // Handle API response
+    //       const data = await response.json();
+    //       console.log("API response:", data);
+
+    //       if (data.choices && data.choices.length > 0) {
+    //         let verdict,
+    //           summary = parseResponse(data.choices[0].message.content);
+    //         chrome.runtime.sendMessage({
+    //           action: "displayVerdictAndSummary",
+    //           verdict: verdict,
+    //           summary: summary,
+    //         });
+    //         storeSummary(bookId, verdict);
+    //       } else {
+    //         console.error("No valid choices in response:", data);
+    //         chrome.runtime.sendMessage({
+    //           action: "displayVerdictAndSummary",
+    //           summary: "No valid response received from the API.",
+    //         });
+    //       }
+    //     } catch (error) {
+    //       console.error("Error:", error);
+    //       chrome.runtime.sendMessage({
+    //         action: "displayVerdictAndSummary",
+    //         summary: "An error occurred while summarizing the reviews.",
+    //       });
+    //     }
+    //   }
+    // })();
+
+    let text = `*VERDICT: READ*
+
+The book is polarizing and tedious for many readers. Booker Prize winners often disappoint, evoking depression. The plot and writing style, particularly in "Life of Pi," can be overwrought. The narrative's religious undertones and lengthy descriptions deter engagement. Ultimately, the story's philosophical aspects and animal allegories fail to captivate universally.`;
+
+    let verdictAndSummary = parseResponse(text);
+    chrome.runtime.sendMessage({
+      action: "displayVerdictAndSummary",
+      verdict: verdictAndSummary.verdict,
+      summary: verdictAndSummary.summary,
+    });
 
     // Returning true to indicate response will be sent asynchronously
     return true;
@@ -113,9 +128,9 @@ function truncateReviews(reviews, maxTokens) {
 // Reviews caching util methods
 // *********************************************
 
-function storeSummary(bookId, summary) {
+function storeSummary(bookId, summary, verdict) {
   chrome.storage.local.set(
-    { [bookId]: { summary, timestamp: Date.now() } },
+    { [bookId]: { summary, verdict, timestamp: Date.now() } },
     () => {
       if (chrome.runtime.lastError) {
         console.error("Error storing summary:", chrome.runtime.lastError);
@@ -134,6 +149,23 @@ function getSummary(bookId) {
       }
     });
   });
+}
+
+// *********************************************
+// Parse response for verdict and summary
+// *********************************************
+
+function parseResponse(text) {
+  const verdictRegex = /\*VERDICT: ([^\*]*)\*([\s\S]*)/;
+  const match = text.match(verdictRegex);
+  if (match) {
+    const verdict = match[1].trim();
+    const summary = match[2].trim();
+    return { verdict, summary };
+  } else {
+    console.log("No verdict or summary found");
+    return null;
+  }
 }
 
 // See what books are stored in local cache. Use service worker on chrome://extensions page

@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const statusDiv = document.getElementById("status");
+  const verdictDiv = document.getElementById("verdict");
+  const verdictSummaryDiv = document.getElementById("verdict-summary");
 
   // Check if the current tab URL is from Goodreads
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -21,12 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Sends messages to display to user in popup.html
     chrome.runtime.onMessage.addListener((request) => {
       console.log("popup.js received message:", request);
-      if (request.action === "reviewsSummary") {
-        if (request.summary) {
-          statusDiv.textContent = ""; // Put 'The Verdict Is...READ/DO NOT READ' here
-          const summaryDiv = document.createElement("div");
-          summaryDiv.textContent = request.summary;
-          statusDiv.appendChild(summaryDiv);
+      if (request.action === "displayVerdictAndSummary") {
+        if (request.summary && request.verdict) {
+          statusDiv.textContent = "";
+          verdictDiv.textContent = request.verdict;
+          verdictSummaryDiv.textContent = request.summary;
+          // verdictSummaryDiv.textContent = "";
+          // const summaryDiv = document.createElement("div");
+          // summaryDiv.textContent = request.summary;
+          // verdictSummaryDiv.appendChild(summaryDiv);
         } else {
           statusDiv.textContent = "Failed to summarize reviews.";
         }

@@ -52,7 +52,7 @@ chrome.runtime.onMessage.addListener((request) => {
       return { found: false };
     }
 
-    // If a rating system is detected on product page, send to background.js
+    // If a rating system is detected on product page, send reviews and bookId to background.js
     const ratingResult = detectRatingSystem();
     if (ratingResult.found) {
       try {
