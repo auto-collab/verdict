@@ -4,7 +4,7 @@
 
 # **Verdict**
 
-Chrome exstension that summarizes users reviews of a given book on Goodreads.com. The application will collect all reviews and send them to ChatGPT to summarize and return a verdict of **Read** or **Do Not Read**.
+Chrome exstension that summarizes users reviews of a given book on [Goodreads](https://www.goodreads.com). The application will collect all reviews and send them to ChatGPT to summarize and return a verdict of **Read** or **Do Not Read**.
 
 ## **Installation**
 
@@ -18,9 +18,8 @@ Chrome exstension that summarizes users reviews of a given book on Goodreads.com
 
 ## **Usage**
 
-1. **Navigate to a product page** on any book on [Goodreads](https://www.goodreads.com).
+1. Navigate to any book page on [Goodreads](https://www.goodreads.com).
 1. Click on the **Verdict extension icon** in the Chrome toolbar.
-1. The popup will display whether a rating system was detected and show the XPath of the detected element.
 
 ### Notes
 
