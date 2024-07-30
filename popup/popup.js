@@ -12,8 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    statusDiv.textContent = "Getting summary...";
-
     // Sending message to content script to detect and extract reviews
     chrome.tabs.sendMessage(currentTab.id, {
       action: "getReviewsFromPage",
@@ -28,10 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
           statusDiv.textContent = "";
           verdictDiv.textContent = request.verdict;
           verdictSummaryDiv.textContent = request.summary;
-          // verdictSummaryDiv.textContent = "";
-          // const summaryDiv = document.createElement("div");
-          // summaryDiv.textContent = request.summary;
-          // verdictSummaryDiv.appendChild(summaryDiv);
         } else {
           statusDiv.textContent = "Failed to summarize reviews.";
         }
