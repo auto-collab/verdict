@@ -1,18 +1,18 @@
-import { config } from "./config.js";
+import { callOpenAI } from "./openai/openaiHandler.js";
 
-chrome.runtime.onMessage.addListener((request) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("background.js received message:", request);
 
   if (request.action === "sendReviewsToOpenAI") {
     (async () => {
       const reviews = request.reviews;
       const bookId = request.bookId;
-
+      console.log(`All reviews: ${request.reviews}`);
       // Check if the summary already exists
       const existingSummary = await getSummary(bookId);
       if (existingSummary) {
-        chrome.runtime.sendMessage({
-          action: "displayVerdictAndSummary",
+        console.log(`Existing summary for ${bookId} found in cache`);
+        sendResponse({
           summary: existingSummary.summary,
           verdict: existingSummary.verdict,
         });
@@ -23,37 +23,7 @@ chrome.runtime.onMessage.addListener((request) => {
 
         // Call to OpenAI API
         try {
-          const response = await fetch(
-            "https://api.openai.com/v1/chat/completions",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${config.OPENAI_API_KEY}`,
-              },
-              body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-
-                // TODO: move content messages to separate classs
-                messages: [
-                  {
-                    role: "system",
-                    content:
-                      "You are book judge who summarizes user book reviews.",
-                  },
-                  {
-                    role: "user",
-                    content: `Return a five sentence summary using 10 words per sentence of the following book reviews. Give a final verdict of READ or DO NOT READ. Format your response with the verdict coming first, like this *VERDICT: READ*, and then summary.:\n\n${truncatedReviews}`,
-                  },
-                ],
-                max_tokens: 1500,
-              }),
-            }
-          );
-
-          // Handle API response
-          const data = await response.json();
-          console.log("API response:", data);
+          const data = await callOpenAI(truncatedReviews);
 
           if (data.choices && data.choices.length > 0) {
             let verdictAndSummary = parseResponse(
@@ -61,23 +31,20 @@ chrome.runtime.onMessage.addListener((request) => {
             );
             let verdict = verdictAndSummary.verdict;
             let summary = verdictAndSummary.summary;
-            chrome.runtime.sendMessage({
-              action: "displayVerdictAndSummary",
+            sendResponse({
               verdict: verdict,
               summary: summary,
             });
             storeSummary(bookId, summary, verdict);
           } else {
             console.error("No valid choices in response:", data);
-            chrome.runtime.sendMessage({
-              action: "displayVerdictAndSummary",
+            sendResponse({
               summary: "No valid response received from the API.",
             });
           }
         } catch (error) {
           console.error("Error:", error);
-          chrome.runtime.sendMessage({
-            action: "displayVerdictAndSummary",
+          sendResponse({
             summary: "An error occurred while summarizing the reviews.",
           });
         }
@@ -159,8 +126,3 @@ function parseResponse(text) {
     return null;
   }
 }
-
-// See what books are stored in local cache. Use service worker on chrome://extensions page
-// chrome.storage.local.get(null, (items) => {
-//   console.log("Stored items:", items);
-// });

@@ -21,9 +21,14 @@ Chrome exstension that summarizes users reviews of a given book on [Goodreads](h
 1. Navigate to any book page on [Goodreads](https://www.goodreads.com).
 1. Click on the **Verdict extension icon** in the Chrome toolbar.
 
-### Notes
+### **Notes**
 
 Previous Verdicts will be stored in browser cache to reduce calls to OpenAI.
+
+Check what verdicts are you in browser cache by running the following code in the extension service worker console:
+`chrome.storage.local.get(null, (items) => {
+   console.log("Stored items:", items);
+ });`
 
 ## **License**
 

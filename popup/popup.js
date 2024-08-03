@@ -13,25 +13,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Sending message to content script to detect and extract reviews
-    chrome.tabs.sendMessage(currentTab.id, {
-      action: "getReviewsFromPage",
-      url: url,
-    });
-
-    // Sends messages to display to user in popup.html
-    chrome.runtime.onMessage.addListener((request) => {
-      console.log("popup.js received message:", request);
-      if (request.action === "displayVerdictAndSummary") {
-        if (request.summary && request.verdict) {
-          statusDiv.textContent = "";
-          verdictDiv.textContent = request.verdict;
-          verdictSummaryDiv.textContent = request.summary;
-        } else {
-          statusDiv.textContent = "Failed to summarize reviews.";
+    chrome.tabs.sendMessage(
+      currentTab.id,
+      { action: "getReviewsFromPage", url: url },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("Error:", chrome.runtime.lastError.message);
+          statusDiv.textContent = "Error";
+          return;
         }
-      } else if (request.action === "noRatingSystemFound") {
-        statusDiv.textContent = "No book rating system detected.";
+        console.log("popup.js received response:", response);
+        if (response.summary && response.verdict) {
+          statusDiv.textContent = "";
+          verdictDiv.textContent = response.verdict;
+          verdictSummaryDiv.textContent = response.summary;
+        } else {
+          statusDiv.textContent = response.summary;
+        }
       }
-    });
+    );
   });
 });

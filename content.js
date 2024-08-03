@@ -1,7 +1,6 @@
-chrome.runtime.onMessage.addListener((request) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("content.js received message:", request);
   if (request.action === "getReviewsFromPage") {
-    // Class to handle the extraction of the user reviews
     class ReviewExtractor {
       static extractReviews() {
         const reviewElements = document.querySelectorAll(
@@ -12,14 +11,12 @@ chrome.runtime.onMessage.addListener((request) => {
         reviewElements.forEach((element) => {
           reviews.push(element.innerText.trim());
         });
-
         return reviews;
       }
     }
 
     // Logic to handle the extraction of the user reviews
     function extractBookIdFromUrl(url) {
-      // segments example: '/book/show/61350389-counter-identity'
       const segments = new URL(url).pathname.split("/");
 
       if (segments.length >= 4) {
@@ -58,16 +55,32 @@ chrome.runtime.onMessage.addListener((request) => {
       try {
         const reviews = ReviewExtractor.extractReviews();
         const bookId = extractBookIdFromUrl(request.url);
-        chrome.runtime.sendMessage({
-          action: "sendReviewsToOpenAI",
-          reviews,
-          bookId,
-        });
+        chrome.runtime.sendMessage(
+          { action: "sendReviewsToOpenAI", reviews, bookId },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              console.error(
+                "Error in content.js:",
+                chrome.runtime.lastError.message
+              );
+              sendResponse({
+                summary: null,
+                verdict: null,
+              });
+              return;
+            }
+            sendResponse(response);
+          }
+        );
       } catch (error) {
         console.error("Error extracting reviews:", error);
+        sendResponse({ summary: "Error extracting reviews", verdict: null });
       }
     } else {
-      chrome.runtime.sendMessage({ action: "noRatingSystemFound" });
+      sendResponse({ summary: "No review system detected.", verdict: null });
     }
+
+    // Returning true to indicate response will be sent asynchronously
+    return true;
   }
 });
