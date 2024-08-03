@@ -1,4 +1,4 @@
-const apiKey = "sk-None-*****************W";
+import { config } from "./config.js";
 
 chrome.runtime.onMessage.addListener((request) => {
   console.log("background.js received message:", request);
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((request) => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${config.openai_key}`,
               },
               body: JSON.stringify({
                 model: "gpt-3.5-turbo",
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request) => {
                     content: `Return a five sentence summary using 10 words per sentence of the following book reviews. Give a final verdict of READ or DO NOT READ. Format your response with the verdict coming first, like this *VERDICT: READ*, and then summary.:\n\n${truncatedReviews}`,
                   },
                 ],
-                max_tokens: 4000,
+                max_tokens: 1500,
               }),
             }
           );
