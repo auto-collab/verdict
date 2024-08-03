@@ -1,4 +1,6 @@
 import { callOpenAI } from "./openai/openaiHandler.js";
+import ReviewTruncate from "./utils/ReviewTruncate.js";
+import VerdictCache from "./utils/VerdictCache.js";
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("background.js received message:", request);
@@ -9,7 +11,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       const bookId = request.bookId;
       console.log(`All reviews: ${request.reviews}`);
       // Check if the summary already exists
-      const existingSummary = await getSummary(bookId);
+      const existingSummary = await VerdictCache.getSummary(bookId);
       if (existingSummary) {
         console.log(`Existing summary for ${bookId} found in cache`);
         sendResponse({
@@ -18,7 +20,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
       } else {
         const maxInputTokens = 2596;
-        const truncatedReviews = truncateReviews(reviews, maxInputTokens);
+        const truncatedReviews = ReviewTruncate.truncateReviews(
+          reviews,
+          maxInputTokens
+        );
         console.log("Truncated reviews for API call:", truncatedReviews);
 
         // Call to OpenAI API
@@ -35,7 +40,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               verdict: verdict,
               summary: summary,
             });
-            storeSummary(bookId, summary, verdict);
+            VerdictCache.storeSummary(bookId, summary, verdict);
           } else {
             console.error("No valid choices in response:", data);
             sendResponse({
@@ -55,60 +60,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-
-// *********************************************
-// Reviews editing util methods
-// *********************************************
-
-// Get length of text in tokens to control price per call
-function encode(text) {
-  const encoder = new TextEncoder();
-  return encoder.encode(text).length;
-}
-
-// Trims the reviews going to api body
-function truncateReviews(reviews, maxTokens) {
-  let tokenCount = 0;
-  let truncatedText = "";
-
-  for (const review of reviews) {
-    const reviewTokens = encode(review);
-    if (tokenCount + reviewTokens > maxTokens) {
-      break;
-    }
-    truncatedText += review + "\n\n";
-    tokenCount += reviewTokens;
-  }
-
-  return truncatedText;
-}
-
-// *********************************************
-// Reviews caching util methods
-// *********************************************
-
-function storeSummary(bookId, summary, verdict) {
-  chrome.storage.local.set(
-    { [bookId]: { summary: summary, verdict: verdict, timestamp: Date.now() } },
-    () => {
-      if (chrome.runtime.lastError) {
-        console.error("Error storing summary:", chrome.runtime.lastError);
-      }
-    }
-  );
-}
-
-function getSummary(bookId) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get([bookId], (result) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(result[bookId]);
-      }
-    });
-  });
-}
 
 // *********************************************
 // Parse response for verdict and summary
