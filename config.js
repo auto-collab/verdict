@@ -1,3 +1,3 @@
 export const config = {
-  openai_key: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  OPENAI_API_KEY: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxx",
 };

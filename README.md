@@ -10,7 +10,7 @@ Chrome exstension that summarizes users reviews of a given book on [Goodreads](h
 
 1. **Clone or download this repository** to your local machine.
 1. Open project folder in **VS Code**.
-1. Set your `OPENAI_API_KEY` in the `env.config` file. See [OpenAI API documentation](https://platform.openai.com/docs/api-reference/api-keys) for how to generate a key.
+1. Set your `OPENAI_API_KEY` in the `config.js` file. See [OpenAI API documentation](https://platform.openai.com/docs/api-reference/api-keys) for how to generate a key.
 1. Open **Chrome** and navigate to `chrome://extensions/`.
 1. Enable **"Developer mode"** using the toggle switch in the top right corner.
 1. Click on the **"Load unpacked"** button and select the directory where you have downloaded this repository.

@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((request) => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${config.openai_key}`,
+                Authorization: `Bearer ${config.OPENAI_API_KEY}`,
               },
               body: JSON.stringify({
                 model: "gpt-3.5-turbo",
