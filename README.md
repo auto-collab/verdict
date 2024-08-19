@@ -17,8 +17,8 @@ Chrome exstension that summarizes users reviews of a given book on [Goodreads](h
 
 #### Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+Node.js (v14 or higher)
+npm (v6 or higher)
 
 1. **Clone or download this repository** to your local machine.
 1. Open project folder in **VS Code**.
@@ -27,9 +27,13 @@ Chrome exstension that summarizes users reviews of a given book on [Goodreads](h
    ```
    npm install
    ```
-1. Run tests:
+1. Run tests (with coverage):
    ```
-   npm test
+   npm run test
+   ```
+1. Check formatting:
+   ```
+   npm run format:check
    ```
 
 ### **Notes**
