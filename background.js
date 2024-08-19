@@ -1,11 +1,12 @@
-import { callOpenAI } from "./openai/openaiHandler.js";
-import ReviewTruncate from "./utils/ReviewTruncate.js";
-import VerdictCache from "./utils/VerdictCache.js";
+import { callOpenAI } from './openai/openaiHandler.js';
+import ReviewTruncate from './utils/ReviewTruncate.js';
+import VerdictCache from './utils/VerdictCache.js';
+import ResponseHandler from './openai/ResponseHandler.js';
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("background.js received message:", request);
+  console.log('background.js received message:', request);
 
-  if (request.action === "sendReviewsToOpenAI") {
+  if (request.action === 'sendReviewsToOpenAI') {
     (async () => {
       const reviews = request.reviews;
       const bookId = request.bookId;
@@ -22,17 +23,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const maxInputTokens = 2596;
         const truncatedReviews = ReviewTruncate.truncateReviews(
           reviews,
-          maxInputTokens
+          maxInputTokens,
         );
-        console.log("Truncated reviews for API call:", truncatedReviews);
+        console.log('Truncated reviews for API call:', truncatedReviews);
 
         // Call to OpenAI API
         try {
           const data = await callOpenAI(truncatedReviews);
 
           if (data.choices && data.choices.length > 0) {
-            let verdictAndSummary = parseResponse(
-              data.choices[0].message.content
+            let verdictAndSummary = ResponseHandler.parseResponse(
+              data.choices[0].message.content,
             );
             let verdict = verdictAndSummary.verdict;
             let summary = verdictAndSummary.summary;
@@ -42,15 +43,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
             VerdictCache.storeSummary(bookId, summary, verdict);
           } else {
-            console.error("No valid choices in response:", data);
+            console.error('No valid choices in response:', data);
             sendResponse({
-              summary: "No valid response received from the API.",
+              summary: 'No valid response received from the API.',
             });
           }
         } catch (error) {
-          console.error("Error:", error);
+          console.error('Error:', error);
           sendResponse({
-            summary: "An error occurred while summarizing the reviews.",
+            summary: 'An error occurred while summarizing the reviews.',
           });
         }
       }
@@ -60,20 +61,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-
-// *********************************************
-// Parse response for verdict and summary
-// *********************************************
-
-function parseResponse(text) {
-  const verdictRegex = /\*VERDICT: ([^\*]*)\*([\s\S]*)/;
-  const match = text.match(verdictRegex);
-  if (match) {
-    const verdict = match[1].trim();
-    const summary = match[2].trim();
-    return { verdict, summary };
-  } else {
-    console.log("No verdict or summary found");
-    return null;
-  }
-}

@@ -6,9 +6,9 @@ class VerdictCache {
       },
       () => {
         if (chrome.runtime.lastError) {
-          console.error("Error storing summary:", chrome.runtime.lastError);
+          console.error('Error storing summary:', chrome.runtime.lastError);
         }
-      }
+      },
     );
   }
 

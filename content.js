@@ -1,10 +1,10 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("content.js received message:", request);
-  if (request.action === "getReviewsFromPage") {
+  console.log('content.js received message:', request);
+  if (request.action === 'getReviewsFromPage') {
     class ReviewExtractor {
       static extractReviews() {
         const reviewElements = document.querySelectorAll(
-          ".ReviewCard .ReviewText__content .TruncatedContent__text"
+          '.ReviewCard .ReviewText__content .TruncatedContent__text',
         );
         const reviews = [];
 
@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     // Logic to handle the extraction of the user reviews
     function extractBookIdFromUrl(url) {
-      const segments = new URL(url).pathname.split("/");
+      const segments = new URL(url).pathname.split('/');
 
       if (segments.length >= 4) {
         return segments[3];
@@ -56,12 +56,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const reviews = ReviewExtractor.extractReviews();
         const bookId = extractBookIdFromUrl(request.url);
         chrome.runtime.sendMessage(
-          { action: "sendReviewsToOpenAI", reviews, bookId },
+          { action: 'sendReviewsToOpenAI', reviews, bookId },
           (response) => {
             if (chrome.runtime.lastError) {
               console.error(
-                "Error in content.js:",
-                chrome.runtime.lastError.message
+                'Error in content.js:',
+                chrome.runtime.lastError.message,
               );
               sendResponse({
                 summary: null,
@@ -70,14 +70,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               return;
             }
             sendResponse(response);
-          }
+          },
         );
       } catch (error) {
-        console.error("Error extracting reviews:", error);
-        sendResponse({ summary: "Error extracting reviews", verdict: null });
+        console.error('Error extracting reviews:', error);
+        sendResponse({ summary: 'Error extracting reviews', verdict: null });
       }
     } else {
-      sendResponse({ summary: "No review system detected.", verdict: null });
+      sendResponse({ summary: 'No review system detected.', verdict: null });
     }
 
     // Returning true to indicate response will be sent asynchronously

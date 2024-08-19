@@ -6,14 +6,14 @@ class ReviewTruncate {
 
   static truncateReviews(reviews, maxTokens) {
     let tokenCount = 0;
-    let truncatedText = "";
+    let truncatedText = '';
 
     for (const review of reviews) {
       const reviewTokens = ReviewTruncate.encode(review);
       if (tokenCount + reviewTokens > maxTokens) {
         break;
       }
-      truncatedText += review + "\n\n";
+      truncatedText += review + '\n\n';
       tokenCount += reviewTokens;
     }
 

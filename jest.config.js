@@ -1,7 +1,7 @@
 export default {
   transform: {
-    "^.+\\.js$": "babel-jest",
+    '^.+\\.js$': 'babel-jest',
   },
-  testEnvironment: "jest-environment-jsdom",
-  moduleDirectories: ["node_modules", "src", "test"],
+  testEnvironment: 'jest-environment-jsdom',
+  moduleDirectories: ['node_modules', 'src', 'test'],
 };
