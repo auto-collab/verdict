@@ -17,7 +17,7 @@ Chrome exstension that summarizes users reviews of a given book on [Goodreads](h
 
 #### Prerequisites
 
-Node.js (v14 or higher)
+Node.js (v14 or higher)\
 npm (v6 or higher)
 
 1. **Clone or download this repository** to your local machine.
@@ -40,7 +40,7 @@ npm (v6 or higher)
 
 Previous Verdicts will be stored in browser cache to reduce calls to OpenAI.
 
-Check what verdicts are you in browser cache by running the following code in the extension service worker console:
+Check Chrome local storage for previous Verdicts:
 
 ```
 chrome.storage.local.get(null, (items) => {
