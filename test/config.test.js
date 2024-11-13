@@ -6,4 +6,5 @@ test('API key is defined', () => {
 
 test('API URI is defined', () => {
   expect(config.OPENAI_URI).toBeDefined();
+  
 });
